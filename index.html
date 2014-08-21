@@ -1,4 +1,4 @@
-<html>
+<html ng-app="kpApp">
 <head>
 	<meta charset="UTF-8" />
 	
@@ -12,7 +12,7 @@
 		}
 	</style>
 </head>
-<body>
+<body ng-controller="MainCtrl">
 	<header class="navbar navbar-static-top bs-docs-nav" id="top" role="banner">
 	  <div class="container">
 	    <div class="navbar-header">
@@ -50,46 +50,62 @@
 		<div class="col-md-4">
 			<h2> 文章類別目錄</h2>
 			<ul class="categories">
-				<li class="wait"> Loading </li>
+				<li class='category' ng-repeat="(key, item) in categories" ng-click="clickOnCategory(item.id)">{{item.name}}
+					<ul class='articles'>
+						<li class='article' ng-repeat="(key, article) in item.posts" ng-click="clickOnArticle($event, article)">{{article.title}}</li>
+					</ul>
+				</li>
 			</ul>
 		</div>
-		<div class="page col-xs-12 col-sm-6 col-md-8 col-xs-6">
-			請選擇文章
+		<div class="page col-xs-12 col-sm-6 col-md-8 col-xs-6" ng-bind-html="content">
+			
 		</div>
 	</div>
 	
-	<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+	<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.22/angular.min.js"></script>
 	<script>
+		var API_KEY = "YOUR_API_KEY"
 		var API_SERVER = "http://api.kptaipei.tw/v1/";
-		var posts = {};
-		$(".categories").on("click",".category",function(){
-			var $category = $(this);
-			var id = $category.data("id");
-			$.get(API_SERVER+"category/"+id+"?accessToken=kp53f57089e5fe83.29361981",function(results){
-				$category.find(".articles .article").remove();
-				var articles = $category.find(".articles");
-				$.each(results.data,function(ind,item){
-					posts[item.id] = item;
-					articles.append("<li class='article' data-id='"+item.id+"'>"+item.title+"</li>");
+
+		var app = angular.module('kpApp', []);
+
+		app.controller('MainCtrl', ['$scope', '$http', '$sce', function($scope, $http, $sce){
+			$scope.categories = {};
+			$scope.content = $sce.trustAsHtml("請選擇文章");
+			$http.get(API_SERVER+"category/?accessToken="+API_KEY).success(function(results) {
+				//console.log(results);
+				var initial_category_id;
+				angular.forEach(results.data,function(item,ind){
+					initial_category_id = initial_category_id || item.id;
+					$scope.categories[item.id] = item;
+					$scope.categories[item.id].posts = [];
 				});
-				if(results.data.length){
-					$(".page").html(results.data[0].content);
-				}
+				$scope.clickOnCategory(initial_category_id);
 			});
-		});
-		$(".categories").on("click",".article",function(){
-			var post_id = $(this).data("id");
-			$(".page").html(posts[post_id].content || "無資料");
-			return false;
-		})
-		$.get( API_SERVER + "category/?accessToken=kp53f57089e5fe83.29361981",function(results){
-			$(".wait").remove();
-			
-			$.each(results.data,function(ind,item){
-				$(".categories").append("<li class='category' data-id='"+item.id+"'>"+item.name+" <ul class='articles'></ul></li>");
-			})
-			$(".categories").find(".category:first").click();
-		});
+
+			$scope.clickOnCategory = function(category_id) {
+				$http.get(API_SERVER+"category/"+category_id+"?accessToken="+API_KEY).success(function(results) {
+					console.log(results);
+					var initial_article;
+					$scope.categories[category_id].posts = [];
+					angular.forEach(results.data,function(item){
+						initial_article = initial_article || item;
+						$scope.categories[category_id].posts.push(item);
+					});
+					$scope.clickOnArticle(undefined, initial_article);
+				});
+			};
+
+			$scope.clickOnArticle  = function($event, article) {
+				if(typeof($event) != 'undefined') {
+					$event.preventDefault();
+					$event.stopPropagation();
+				}
+				$scope.content = $sce.trustAsHtml(article.content);
+			};
+
+		}]);
+
 	</script>
 </body>
 </html>

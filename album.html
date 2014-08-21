@@ -1,4 +1,4 @@
-<html>
+<html ng-app="kpApp">
 <head>
 	<meta charset="UTF-8" />
 	
@@ -16,7 +16,7 @@
 		}
 	</style>
 </head>
-<body>
+<body ng-controller="MainCtrl">
 	<header class="navbar navbar-static-top bs-docs-nav" id="top" role="banner">
 	  <div class="container">
 	    <div class="navbar-header">
@@ -54,37 +54,51 @@
 		<div class="col-md-4">
 			<h2> 相簿目錄</h2>
 			<ul class="categories">
-				<li class="wait"> Loading </li>
+				<li class='album' ng-repeat="item in albums" ng-click="clickOnAlbum(item.id)">{{item.title}}</li>
 			</ul>
 		</div>
 		<div class="photo-container col-xs-12 col-sm-6 col-md-8 col-xs-6 ">
-			<ul class="photos row"><li>Loading</li></ul>
+			<h2>{{album.set.title}}</h2>
+			<ul class="photos row">
+				<li class="col-md-4 photo" ng-repeat="item in album.photos"><a target="_blank" ng-href="{{item.link}}"><img class="img-rounded img-responsive" ng-src="{{item.images.medium}}"/></a></li>
+			</ul>
 		</div>
 	</div>
 	
-	<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+	<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.22/angular.min.js"></script>
 	<script>
+		var API_KEY = "YOUR_API_KEY"
 		var API_SERVER = "http://api.kptaipei.tw/v1/";
-		$(".categories").on("click",".album",function(){
-			var $album = $(this);
-			var id = $album.data("id");
-			$.get(API_SERVER+"albums/"+id+"?accessToken=kp53f57089e5fe83.29361981",function(results){
-				var $photos = $(".photos");
-				$photos.find("> * ").remove().html("");
-				$(".photo-container h2").remove();
-				$(".photo-container").prepend("<h2>"+results.data.set.title+"</h2>");
-				
-				$.each(results.data.photos,function(ind,item){
-					$photos.append('<li class="col-md-4 photo "><a target="_blank" href="'+item.link+'"><img class="img-rounded img-responsive" src="'+item.images.medium+'"/></a></li>');
-				});
+
+		var app = angular.module('kpApp', []);
+
+		app.controller('MainCtrl', ['$scope', '$http', '$sce', function($scope, $http, $sce){
+
+			$scope.albums = [];
+
+			$http.get(API_SERVER+"albums/?accessToken="+API_KEY).success(function(results) {
+				console.log(results);
+				$scope.albums = results.data;
+				$scope.clickOnAlbum(results.data[0].id);
 			});
-		});
-		$.get( API_SERVER + "albums/?accessToken=kp53f57089e5fe83.29361981",function(results){
-			$.each(results.data,function(ind,item){
-				$(".categories").append("<li class='album' data-id='"+item.id+"'>"+item.title+"</li>");
-			})
-			$(".categories").find(".album:first").click();
-		});
+
+			$scope.clickOnAlbum = function(album_id) {
+				$http.get(API_SERVER+"albums/"+album_id+"?accessToken="+API_KEY).success(function(results) {
+					console.log(results);
+					$scope.album = results.data;
+				});
+			};
+
+			$scope.clickOnArticle  = function($event, article) {
+				if(typeof($event) != 'undefined') {
+					$event.preventDefault();
+					$event.stopPropagation();
+				}
+				$scope.content = $sce.trustAsHtml(article.content);
+			};
+
+		}]);
+
 	</script>
 </body>
 </html>

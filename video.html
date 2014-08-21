@@ -1,4 +1,4 @@
-<html>
+<html ng-app="kpApp">
 <head>
 	<meta charset="UTF-8" />
 	
@@ -12,7 +12,7 @@
 		}
 	</style>
 </head>
-<body>
+<body ng-controller="MainCtrl">
 	<header class="navbar navbar-static-top bs-docs-nav" id="top" role="banner">
 	  <div class="container">
 	    <div class="navbar-header">
@@ -50,50 +50,66 @@
 		<div class="col-md-4">
 			<h2> 播放清單列表</h2>
 			<ul class="categories">
-				<li class="wait"> Loading </li>
+				<li class='playlist' ng-repeat="item in categories" ng-click="clickOnCategory(item.id)">{{item.title}}
+					<ul class='videos'>
+						<li class='video' ng-repeat="video in item.videos" ng-click="clickOnVideo($event, video)">{{video.title}}</li>
+					</ul>
+				</li>
 			</ul>
 		</div>
 		<div class="page col-xs-12 col-sm-6 col-md-8 col-xs-6">
-			請選擇文章
+			<h2>{{content.title}}</h2>
+			<iframe ng-src='{{content.url}}' width='600' height='450' ></iframe>
+			<br />
+			<pre>{{content.description}}</pre>
 		</div>
 	</div>
 	
-	<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+	<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.22/angular.min.js"></script>
 	<script>
+		var API_KEY = "YOUR_API_KEY"
 		var API_SERVER = "http://api.kptaipei.tw/v1/";
-		var videos = {};
-		$(".categories").on("click",".playlist",function(){
-			var $playlist = $(this);
-			var id = $playlist.data("id");
-			$.get(API_SERVER+"videos/"+id+"?accessToken=kp53f57089e5fe83.29361981",function(results){
-				$playlist.find(".videos .video").remove();
-				var articles = $playlist.find(".videos");
-				$.each(results.data,function(ind,item){
-					videos[item.id] = item;
-					articles.append("<li class='video' data-id='"+item.id+"'>"+item.title+"</li>");
+
+		var app = angular.module('kpApp', []);
+
+		app.controller('MainCtrl', ['$scope', '$http', '$sce', function($scope, $http, $sce){
+			$scope.categories = {};
+			$http.get(API_SERVER+"videos/?accessToken="+API_KEY).success(function(results) {
+				console.log(results);
+				var initial_category_id;
+				angular.forEach(results.data,function(item,ind){
+					initial_category_id = initial_category_id || item.id;
+					$scope.categories[item.id] = item;
+					$scope.categories[item.id].videos = [];
 				});
-				if(results.data.length){
-					var video = results.data[0];
-					$(".page").html("<h2>"+video.title+"</h2>"+"<iframe src='http://www.youtube.com/embed/"+video.id+"' width='600' height='450' ></iframe>"+
-							"<Br /><pre>"+video.description+"</pre>");
-				}
+				$scope.clickOnCategory(results.data[0].id);
 			});
-		});
-		$(".categories").on("click",".video",function(){
-			var post_id = $(this).data("id");
-			var video = videos[post_id];
-			$(".page").html("<h2>"+video.title+"</h2>"+"<iframe src='http://www.youtube.com/embed/"+video.id+"' width='600' height='450' ></iframe>"+
-					"<Br /><pre>"+video.description+"</pre>");
-			return false;
-		})
-		$.get( API_SERVER + "videos/?accessToken=kp53f57089e5fe83.29361981",function(results){
-			$(".wait").remove();
-			
-			$.each(results.data,function(ind,item){
-				$(".categories").append("<li class='playlist' data-id='"+item.id+"'>"+item.title+" <ul class='videos'></ul></li>");
-			})
-			$(".categories").find(".playlist:first").click();
-		});
+
+			$scope.clickOnCategory = function(category_id) {
+				$http.get(API_SERVER+"videos/"+category_id+"?accessToken="+API_KEY).success(function(results) {
+					console.log(results);
+					var initial_playlist;
+					$scope.categories[category_id].videos = [];
+					angular.forEach(results.data,function(item){
+						initial_playlist = initial_playlist || item;
+						$scope.categories[category_id].videos.push(item);
+					});
+					$scope.clickOnVideo(undefined, initial_playlist);
+				});
+			};
+
+			$scope.clickOnVideo  = function($event, video) {
+				if(typeof($event) != 'undefined') {
+					$event.preventDefault();
+					$event.stopPropagation();
+				}
+				$scope.content = video;
+				$scope.content.url = $sce.trustAsResourceUrl('http://www.youtube.com/embed/' + video.id);
+			};
+
+		}]);
+
 	</script>
+
 </body>
 </html>
