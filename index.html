@@ -1,0 +1,95 @@
+<html>
+<head>
+	<meta charset="UTF-8" />
+	
+	<title>柯文哲文章集</title>
+
+	<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+	<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
+	<style>
+		.category,.article{	
+			cursor:pointer;
+		}
+	</style>
+</head>
+<body>
+	<header class="navbar navbar-static-top bs-docs-nav" id="top" role="banner">
+	  <div class="container">
+	    <div class="navbar-header">
+	      <button class="navbar-toggle" type="button" data-toggle="collapse" data-target=".bs-navbar-collapse">
+	        <span class="sr-only">Toggle navigation</span>
+	        <span class="icon-bar"></span>
+	        <span class="icon-bar"></span>
+	        <span class="icon-bar"></span>
+	      </button>
+	      <a href="index.html" class="navbar-brand">柯文哲 API 範例站</a>
+	    </div>
+	    <nav class="collapse navbar-collapse bs-navbar-collapse" role="navigation">
+	      <ul class="nav navbar-nav">
+	        <li class="active">
+	          <a href="index.html">文章範例</a>
+	        </li>
+	        <li>
+	          <a href="album.html">相簿範例</a>
+	        </li>
+	        <li>
+	          <a href="video.html">影片範例</a>
+	        </li>
+	      </ul>
+	      <ul class="nav navbar-nav navbar-right">
+	        <li><a href="http://kptaipei.tw" target="_blank">柯文哲官網</a></li>
+	        <li>
+	          <a href="http://unlimited.kptaipei.tw" target="_blank">野生官網活動介紹</a>
+	        </li>	        
+	      </ul>
+	    </nav>
+	  </div>
+	</header>
+	<div class="container">
+		
+		<div class="col-md-4">
+			<h2> 文章類別目錄</h2>
+			<ul class="categories">
+				<li class="wait"> Loading </li>
+			</ul>
+		</div>
+		<div class="page col-xs-12 col-sm-6 col-md-8 col-xs-6">
+			請選擇文章
+		</div>
+	</div>
+	
+	<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+	<script>
+		var API_SERVER = "http://api.kptaipei.tw/v1/";
+		var posts = {};
+		$(".categories").on("click",".category",function(){
+			var $category = $(this);
+			var id = $category.data("id");
+			$.get(API_SERVER+"category/"+id+"?accessToken=kp53f57089e5fe83.29361981",function(results){
+				$category.find(".articles .article").remove();
+				var articles = $category.find(".articles");
+				$.each(results.data,function(ind,item){
+					posts[item.id] = item;
+					articles.append("<li class='article' data-id='"+item.id+"'>"+item.title+"</li>");
+				});
+				if(results.data.length){
+					$(".page").html(results.data[0].content);
+				}
+			});
+		});
+		$(".categories").on("click",".article",function(){
+			var post_id = $(this).data("id");
+			$(".page").html(posts[post_id].content || "無資料");
+			return false;
+		})
+		$.get( API_SERVER + "category/?accessToken=kp53f57089e5fe83.29361981",function(results){
+			$(".wait").remove();
+			
+			$.each(results.data,function(ind,item){
+				$(".categories").append("<li class='category' data-id='"+item.id+"'>"+item.name+" <ul class='articles'></ul></li>");
+			})
+			$(".categories").find(".category:first").click();
+		});
+	</script>
+</body>
+</html>

@@ -1,0 +1,99 @@
+<html>
+<head>
+	<meta charset="UTF-8" />
+	
+	<title>柯文哲影片集</title>
+
+	<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+	<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
+	<style>
+		.category,.article{	
+			cursor:pointer;
+		}
+	</style>
+</head>
+<body>
+	<header class="navbar navbar-static-top bs-docs-nav" id="top" role="banner">
+	  <div class="container">
+	    <div class="navbar-header">
+	      <button class="navbar-toggle" type="button" data-toggle="collapse" data-target=".bs-navbar-collapse">
+	        <span class="sr-only">Toggle navigation</span>
+	        <span class="icon-bar"></span>
+	        <span class="icon-bar"></span>
+	        <span class="icon-bar"></span>
+	      </button>
+	      <a href="index.html" class="navbar-brand">柯文哲 API 範例站</a>
+	    </div>
+	    <nav class="collapse navbar-collapse bs-navbar-collapse" role="navigation">
+	      <ul class="nav navbar-nav">
+	        <li >
+	          <a href="index.html">文章範例</a>
+	        </li>
+	        <li>
+	          <a href="album.html">相簿範例</a>
+	        </li>
+	        <li class="active">
+	          <a href="video.html">影片範例</a>
+	        </li>
+	      </ul>
+	      <ul class="nav navbar-nav navbar-right">
+	        <li><a href="http://kptaipei.tw" target="_blank">柯文哲官網</a></li>
+	        <li>
+	          <a href="http://unlimited.kptaipei.tw" target="_blank">野生官網活動介紹</a>
+	        </li>	        
+	      </ul>
+	    </nav>
+	  </div>
+	</header>
+	<div class="container">
+		
+		<div class="col-md-4">
+			<h2> 播放清單列表</h2>
+			<ul class="categories">
+				<li class="wait"> Loading </li>
+			</ul>
+		</div>
+		<div class="page col-xs-12 col-sm-6 col-md-8 col-xs-6">
+			請選擇文章
+		</div>
+	</div>
+	
+	<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+	<script>
+		var API_SERVER = "http://api.kptaipei.tw/v1/";
+		var videos = {};
+		$(".categories").on("click",".playlist",function(){
+			var $playlist = $(this);
+			var id = $playlist.data("id");
+			$.get(API_SERVER+"videos/"+id+"?accessToken=kp53f57089e5fe83.29361981",function(results){
+				$playlist.find(".videos .video").remove();
+				var articles = $playlist.find(".videos");
+				$.each(results.data,function(ind,item){
+					videos[item.id] = item;
+					articles.append("<li class='video' data-id='"+item.id+"'>"+item.title+"</li>");
+				});
+				if(results.data.length){
+					var video = results.data[0];
+					$(".page").html("<h2>"+video.title+"</h2>"+"<iframe src='http://www.youtube.com/embed/"+video.id+"' width='600' height='450' ></iframe>"+
+							"<Br /><pre>"+video.description+"</pre>");
+				}
+			});
+		});
+		$(".categories").on("click",".video",function(){
+			var post_id = $(this).data("id");
+			var video = videos[post_id];
+			$(".page").html("<h2>"+video.title+"</h2>"+"<iframe src='http://www.youtube.com/embed/"+video.id+"' width='600' height='450' ></iframe>"+
+					"<Br /><pre>"+video.description+"</pre>");
+			return false;
+		})
+		$.get( API_SERVER + "videos/?accessToken=kp53f57089e5fe83.29361981",function(results){
+			$(".wait").remove();
+			
+			$.each(results.data,function(ind,item){
+				$(".categories").append("<li class='playlist' data-id='"+item.id+"'>"+item.title+" <ul class='videos'></ul></li>");
+			})
+			$(".categories").find(".playlist:first").click();
+		});
+	</script>
+</body>
+</html>
