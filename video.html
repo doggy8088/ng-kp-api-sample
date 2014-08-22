@@ -12,7 +12,7 @@
 		}
 	</style>
 </head>
-<body ng-controller="MainCtrl">
+<body>
 	<header class="navbar navbar-static-top bs-docs-nav" id="top" role="banner">
 	  <div class="container">
 	    <div class="navbar-header">
@@ -45,71 +45,28 @@
 	    </nav>
 	  </div>
 	</header>
-	<div class="container">
+	<div class="container" ng-controller="VideoCtrl as vc">
 		
 		<div class="col-md-4">
 			<h2> 播放清單列表</h2>
 			<ul class="categories">
-				<li class='playlist' ng-repeat="item in categories" ng-click="clickOnCategory(item.id)">{{item.title}}
+				<li class='playlist' ng-repeat="item in vc.categories" ng-click="vc.clickOnCategory(item.id)">{{item.title}}
 					<ul class='videos'>
-						<li class='video' ng-repeat="video in item.videos" ng-click="clickOnVideo($event, video)">{{video.title}}</li>
+						<li class='video' ng-repeat="video in item.videos" ng-click="vc.clickOnVideo($event, video)">{{video.title}}</li>
 					</ul>
 				</li>
 			</ul>
 		</div>
 		<div class="page col-xs-12 col-sm-6 col-md-8 col-xs-6">
-			<h2>{{content.title}}</h2>
-			<iframe ng-src='{{content.url}}' width='600' height='450' ></iframe>
+			<h2>{{vc.content.title}}</h2>
+			<iframe ng-src='{{vc.content.url}}' width='600' height='450' ></iframe>
 			<br />
-			<pre>{{content.description}}</pre>
+			<pre>{{vc.content.description}}</pre>
 		</div>
 	</div>
 	
 	<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.22/angular.min.js"></script>
-	<script>
-		var API_KEY = "YOUR_API_KEY"
-		var API_SERVER = "http://api.kptaipei.tw/v1/";
-
-		var app = angular.module('kpApp', []);
-
-		app.controller('MainCtrl', ['$scope', '$http', '$sce', function($scope, $http, $sce){
-			$scope.categories = {};
-			$http.get(API_SERVER+"videos/?accessToken="+API_KEY).success(function(results) {
-				console.log(results);
-				var initial_category_id;
-				angular.forEach(results.data,function(item,ind){
-					initial_category_id = initial_category_id || item.id;
-					$scope.categories[item.id] = item;
-					$scope.categories[item.id].videos = [];
-				});
-				$scope.clickOnCategory(results.data[0].id);
-			});
-
-			$scope.clickOnCategory = function(category_id) {
-				$http.get(API_SERVER+"videos/"+category_id+"?accessToken="+API_KEY).success(function(results) {
-					console.log(results);
-					var initial_playlist;
-					$scope.categories[category_id].videos = [];
-					angular.forEach(results.data,function(item){
-						initial_playlist = initial_playlist || item;
-						$scope.categories[category_id].videos.push(item);
-					});
-					$scope.clickOnVideo(undefined, initial_playlist);
-				});
-			};
-
-			$scope.clickOnVideo  = function($event, video) {
-				if(typeof($event) != 'undefined') {
-					$event.preventDefault();
-					$event.stopPropagation();
-				}
-				$scope.content = video;
-				$scope.content.url = $sce.trustAsResourceUrl('http://www.youtube.com/embed/' + video.id);
-			};
-
-		}]);
-
-	</script>
-
+	<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.22/angular-route.min.js"></script>	
+	<script src="app.js"></script>
 </body>
 </html>

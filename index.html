@@ -7,105 +7,63 @@
 	<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
 	<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
 	<style>
-		.category,.article{	
-			cursor:pointer;
-		}
+	.category,.article{	
+		cursor:pointer;
+	}
 	</style>
 </head>
-<body ng-controller="MainCtrl">
+<body ng-controller="MainCtrl as main">
 	<header class="navbar navbar-static-top bs-docs-nav" id="top" role="banner">
-	  <div class="container">
-	    <div class="navbar-header">
-	      <button class="navbar-toggle" type="button" data-toggle="collapse" data-target=".bs-navbar-collapse">
-	        <span class="sr-only">Toggle navigation</span>
-	        <span class="icon-bar"></span>
-	        <span class="icon-bar"></span>
-	        <span class="icon-bar"></span>
-	      </button>
-	      <a href="index.html" class="navbar-brand">柯文哲 API 範例站</a>
-	    </div>
-	    <nav class="collapse navbar-collapse bs-navbar-collapse" role="navigation">
-	      <ul class="nav navbar-nav">
-	        <li class="active">
-	          <a href="index.html">文章範例</a>
-	        </li>
-	        <li>
-	          <a href="album.html">相簿範例</a>
-	        </li>
-	        <li>
-	          <a href="video.html">影片範例</a>
-	        </li>
-	      </ul>
-	      <ul class="nav navbar-nav navbar-right">
-	        <li><a href="http://kptaipei.tw" target="_blank">柯文哲官網</a></li>
-	        <li>
-	          <a href="http://unlimited.kptaipei.tw" target="_blank">野生官網活動介紹</a>
-	        </li>	        
-	      </ul>
-	    </nav>
-	  </div>
+		<div class="container">
+			<div class="navbar-header">
+				<button class="navbar-toggle" type="button" data-toggle="collapse" data-target=".bs-navbar-collapse">
+					<span class="sr-only">Toggle navigation</span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+				</button>
+				<a href="index.html" class="navbar-brand">柯文哲 API 範例站</a>
+			</div>
+			<nav class="collapse navbar-collapse bs-navbar-collapse" role="navigation">
+				<ul class="nav navbar-nav">
+					<li class="active">
+						<a href="index.html">文章範例</a>
+					</li>
+					<li>
+						<a href="album.html">相簿範例</a>
+					</li>
+					<li>
+						<a href="video.html">影片範例</a>
+					</li>
+				</ul>
+				<ul class="nav navbar-nav navbar-right">
+					<li><a href="http://kptaipei.tw" target="_blank">柯文哲官網</a></li>
+					<li>
+						<a href="http://unlimited.kptaipei.tw" target="_blank">野生官網活動介紹</a>
+					</li>	        
+				</ul>
+			</nav>
+		</div>
 	</header>
 	<div class="container">
 		
 		<div class="col-md-4">
 			<h2> 文章類別目錄</h2>
 			<ul class="categories">
-				<li class='category' ng-repeat="(key, item) in categories" ng-click="clickOnCategory(item.id)">{{item.name}}
+				<li class='category' ng-repeat="(key, item) in main.categories" ng-click="main.clickOnCategory(item.id)">{{item.name}}
 					<ul class='articles'>
-						<li class='article' ng-repeat="(key, article) in item.posts" ng-click="clickOnArticle($event, article)">{{article.title}}</li>
+						<li class='article' ng-repeat="(key, article) in item.posts" ng-click="main.clickOnArticle($event, article)">{{article.title}}</li>
 					</ul>
 				</li>
 			</ul>
 		</div>
-		<div class="page col-xs-12 col-sm-6 col-md-8 col-xs-6" ng-bind-html="content">
+		<div class="page col-xs-12 col-sm-6 col-md-8 col-xs-6" ng-bind-html="main.content">
 			
 		</div>
 	</div>
 	
-	<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.22/angular.min.js"></script>
-	<script>
-		var API_KEY = "YOUR_API_KEY"
-		var API_SERVER = "http://api.kptaipei.tw/v1/";
-
-		var app = angular.module('kpApp', []);
-
-		app.controller('MainCtrl', ['$scope', '$http', '$sce', function($scope, $http, $sce){
-			$scope.categories = {};
-			$scope.content = $sce.trustAsHtml("請選擇文章");
-			$http.get(API_SERVER+"category/?accessToken="+API_KEY).success(function(results) {
-				//console.log(results);
-				var initial_category_id;
-				angular.forEach(results.data,function(item,ind){
-					initial_category_id = initial_category_id || item.id;
-					$scope.categories[item.id] = item;
-					$scope.categories[item.id].posts = [];
-				});
-				$scope.clickOnCategory(initial_category_id);
-			});
-
-			$scope.clickOnCategory = function(category_id) {
-				$http.get(API_SERVER+"category/"+category_id+"?accessToken="+API_KEY).success(function(results) {
-					console.log(results);
-					var initial_article;
-					$scope.categories[category_id].posts = [];
-					angular.forEach(results.data,function(item){
-						initial_article = initial_article || item;
-						$scope.categories[category_id].posts.push(item);
-					});
-					$scope.clickOnArticle(undefined, initial_article);
-				});
-			};
-
-			$scope.clickOnArticle  = function($event, article) {
-				if(typeof($event) != 'undefined') {
-					$event.preventDefault();
-					$event.stopPropagation();
-				}
-				$scope.content = $sce.trustAsHtml(article.content);
-			};
-
-		}]);
-
-	</script>
+	<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.22/angular.min.js"></script>	
+	<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.22/angular-route.min.js"></script>		
+	<script src="app.js"></script>
 </body>
 </html>
