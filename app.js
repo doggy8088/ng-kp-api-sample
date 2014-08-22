@@ -1,6 +1,6 @@
 angular.module('kpApp', ['ngRoute'])
 .value('API',{
-	KEY:"kp53f6c3de743a16.84028342",
+	KEY:"YOUR_API_KEY",
 	SERVER:"http://api.kptaipei.tw/v1/"
 })
 .controller('MainCtrl', MainController)
@@ -13,6 +13,7 @@ kptService.$injector = ['$http','API'];
 function kptService($http,API){
 	
 	this.getCategory = function(id) {			
+        console.log(API.SERVER+"category/"+id+"?accessToken="+API.KEY);
 		return $http({
 			method:"GET",
 			url: API.SERVER+"category/"+id+"?accessToken="+API.KEY
@@ -20,6 +21,7 @@ function kptService($http,API){
 	};
 
 	this.getAlbums = function(id){
+        console.log(API.SERVER+"albums/"+id+"?accessToken="+API.KEY);
 		return $http({
 			method:"GET",
 			url: API.SERVER+"albums/"+id+"?accessToken="+API.KEY
@@ -27,6 +29,7 @@ function kptService($http,API){
 	};
 
 	this.getVideos = function(id){
+        console.log(API.SERVER+"videos/"+id+"?accessToken="+API.KEY);
 		return $http({
 			method:"GET",
 			url: API.SERVER+"videos/"+id+"?accessToken="+API.KEY
@@ -44,7 +47,7 @@ function MainController($sce,kptService){
 	vm.content = $sce.trustAsHtml("請選擇文章");
 
 	kptService.getCategory("").success(function(results){
-				//console.log(results);
+				console.log(results);
 				var initial_category_id;
 				angular.forEach(results.data,function(item,ind){
 					initial_category_id = initial_category_id || item.id;
@@ -56,6 +59,7 @@ function MainController($sce,kptService){
 
 	function clickOnCategory(category_id) {
 		kptService.getCategory(category_id).success(function(results) {				
+            console.log(results);
 			var initial_article;
 			vm.categories[category_id].posts = [];
 			angular.forEach(results.data,function(item){
