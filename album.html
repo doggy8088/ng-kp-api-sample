@@ -16,7 +16,7 @@
 		}
 	</style>
 </head>
-<body ng-controller="MainCtrl">
+<body>
 	<header class="navbar navbar-static-top bs-docs-nav" id="top" role="banner">
 	  <div class="container">
 	    <div class="navbar-header">
@@ -49,56 +49,24 @@
 	    </nav>
 	  </div>
 	</header>
-	<div class="container">
+	<div class="container"  ng-controller="AlbumCtrl as album">
 		
 		<div class="col-md-4">
 			<h2> 相簿目錄</h2>
 			<ul class="categories">
-				<li class='album' ng-repeat="item in albums" ng-click="clickOnAlbum(item.id)">{{item.title}}</li>
+				<li class='album' ng-repeat="item in album.albums" ng-click="album.clickOnAlbum(item.id)">{{item.title}}</li>
 			</ul>
 		</div>
 		<div class="photo-container col-xs-12 col-sm-6 col-md-8 col-xs-6 ">
 			<h2>{{album.set.title}}</h2>
 			<ul class="photos row">
-				<li class="col-md-4 photo" ng-repeat="item in album.photos"><a target="_blank" ng-href="{{item.link}}"><img class="img-rounded img-responsive" ng-src="{{item.images.medium}}"/></a></li>
+				<li class="col-md-4 photo" ng-repeat="item in album.album.photos"><a target="_blank" ng-href="{{item.link}}"><img class="img-rounded img-responsive" ng-src="{{item.images.medium}}"/></a></li>
 			</ul>
 		</div>
 	</div>
 	
 	<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.22/angular.min.js"></script>
-	<script>
-		var API_KEY = "YOUR_API_KEY"
-		var API_SERVER = "http://api.kptaipei.tw/v1/";
-
-		var app = angular.module('kpApp', []);
-
-		app.controller('MainCtrl', ['$scope', '$http', '$sce', function($scope, $http, $sce){
-
-			$scope.albums = [];
-
-			$http.get(API_SERVER+"albums/?accessToken="+API_KEY).success(function(results) {
-				console.log(results);
-				$scope.albums = results.data;
-				$scope.clickOnAlbum(results.data[0].id);
-			});
-
-			$scope.clickOnAlbum = function(album_id) {
-				$http.get(API_SERVER+"albums/"+album_id+"?accessToken="+API_KEY).success(function(results) {
-					console.log(results);
-					$scope.album = results.data;
-				});
-			};
-
-			$scope.clickOnArticle  = function($event, article) {
-				if(typeof($event) != 'undefined') {
-					$event.preventDefault();
-					$event.stopPropagation();
-				}
-				$scope.content = $sce.trustAsHtml(article.content);
-			};
-
-		}]);
-
-	</script>
+	<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.22/angular-route.min.js"></script>	
+	<script src="app.js"></script>	
 </body>
 </html>
