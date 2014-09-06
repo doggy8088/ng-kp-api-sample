@@ -1,8 +1,8 @@
 柯文哲野生官網 API 使用範例 - AngularJS 版本
 ============================================
 
-	作　者: Will 保哥
-	貢獻者: [chgc](https://github.com/chgc)
+作　者: Will 保哥<br>
+貢獻者: [chgc](https://github.com/chgc)
 
 專案簡介
 ---------
