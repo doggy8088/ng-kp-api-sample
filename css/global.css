@@ -1,0 +1,12 @@
+
+.category, .article {
+    cursor:pointer;
+}
+
+.album {
+    cursor:pointer;
+}
+
+.photo {
+    padding:4px;
+}
