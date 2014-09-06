@@ -1,64 +1,160 @@
 <!DOCTYPE html>
 <html>
 <head>
+	<meta http-equiv="content-type" content="text/html; charset=UTF-8">
 	<meta charset="UTF-8" />
 
 	<title>柯文哲文章集</title>
 
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<link href="http://netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.min.css" rel="stylesheet">
 	<link rel="stylesheet" href="lib/bootstrap/css/bootstrap.min.css">
 	<link rel="stylesheet" href="lib/bootstrap/css/bootstrap-theme.min.css">
-	<link rel="stylesheet" href="css/global.css">
+	<!--[if lt IE 9]>
+		<script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+	<![endif]-->
+	<link rel="stylesheet" href="css/styles.css">
 </head>
 <body ng-app="kpApp" ng-controller="MainCtrl as main">
-	<header class="navbar navbar-static-top bs-docs-nav" id="top" role="banner">
-		<div class="container">
-			<div class="navbar-header">
-				<button class="navbar-toggle" type="button" data-toggle="collapse" data-target=".bs-navbar-collapse">
-					<span class="sr-only">Toggle navigation</span>
-					<span class="icon-bar"></span>
-					<span class="icon-bar"></span>
-					<span class="icon-bar"></span>
-				</button>
-				<a href="index.html" class="navbar-brand">柯文哲 API 範例站</a>
-			</div>
-			<nav class="collapse navbar-collapse bs-navbar-collapse" role="navigation">
-				<ul class="nav navbar-nav">
-					<li class="active">
-						<a href="index.html">文章範例</a>
-					</li>
-					<li>
-						<a href="album.html">相簿範例</a>
-					</li>
-					<li>
-						<a href="video.html">影片範例</a>
-					</li>
-				</ul>
-				<ul class="nav navbar-nav navbar-right">
-					<li><a href="http://kptaipei.tw" target="_blank">柯文哲官網</a></li>
-					<li>
-						<a href="http://unlimited.kptaipei.tw" target="_blank">野生官網活動介紹</a>
-					</li>
-				</ul>
-			</nav>
-		</div>
-	</header>
-	<div class="container">
+<header class="navbar navbar-default navbar-fixed-top" role="banner">
+  <div class="container">
+    <div class="navbar-header">
+      <button class="navbar-toggle" type="button" data-toggle="collapse" data-target=".navbar-collapse">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a href="#/" class="navbar-brand">首頁</a>
+    </div>
+    <nav class="collapse navbar-collapse" role="navigation">
+      <ul class="nav navbar-nav">
+        <li>
+          <a href="#">文章範例</a>
+        </li>
+        <li>
+          <a href="#">相簿範例</a>
+        </li>
+        <li>
+          <a href="#">影片範例</a>
+        </li>
+        <li>
+          <a href="#">音樂範例</a>
+        </li>
+      </ul>
+      <ul class="nav navbar-right navbar-nav">
+	    <li><a href="http://kptaipei.tw" target="_blank">柯文哲官網</a></li>
+        <li><a href="http://unlimited.kptaipei.tw" target="_blank">野生官網活動介紹</a></li>
+        <li><a href="http://unlimited.kptaipei.tw/docs/" target="_blank">API 說明</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
 
-		<div class="col-md-4">
-			<h2> 文章類別目錄</h2>
-			<ul class="categories">
-				<li class='category' ng-repeat="(key, item) in main.categories" ng-click="main.clickOnCategory(item.id)">{{item.name}}
-					<ul class='articles'>
-						<li class='article' ng-repeat="(key, article) in item.posts" ng-click="main.clickOnArticle($event, article)">{{article.title}}</li>
-					</ul>
-				</li>
-			</ul>
-		</div>
-		<div class="page col-xs-12 col-sm-6 col-md-8 col-xs-6" ng-bind-html="main.content">
+<div id="masthead">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-7">
+        <h1>柯文哲野生官網
+          <p class="lead"></p>
+        </h1>
+      </div>
+	  <!--
+      <div class="col-md-5">
+        <div class="well well-lg">
+          <div class="row">
+            <div class="col-sm-12">
 
-		</div>
+            </div>
+          </div>
+        </div>
+      </div>
+	  -->
+    </div>
+  </div><!-- /cont -->
+</div>
+
+
+<div class="container">
+  <div class="row">
+
+	<div class="col-md-12">
+	  <div class="row">
+		<ul class="nav nav-pills">
+			<li class='category'
+				ng-repeat="(key, item) in main.categories"
+				ng-click="main.clickOnCategory(item.id)"
+				ng-class="(main.current_category_id === item.id) ? 'active' : ''">
+				<a href="" ng-bind="item.name"></a>
+			</li>
+		</ul>
+	  </div>
 	</div>
 
+    <div class="col-md-12">
+
+      <div class="panel">
+        <div class="panel-body">
+
+          <!--/stories-->
+
+		  <div class="row" ng-repeat="(key, article) in main.categories[main.current_category_id].posts">
+            <br>
+            <div class="col-md-2 col-sm-3 text-center">
+              <a class="story-img" href="#"><img ng-src="{{article.thumbnail}}" style="width:100px;height:100px" class="img-circle"></a>
+            </div>
+            <div class="col-md-10 col-sm-9">
+              <h3 ng-bind="article.title"></h3>
+              <div class="row">
+                <div class="col-xs-9">
+				<!--
+				<pre>{{article|json}}</pre>
+				-->
+                  <p ng-bind="(article.plain_content | limitTo:150) + '...'"></p>
+                  <p class="lead"><a ng-href="{{article.url}}" class="btn btn-default" target="_blank">Read More</a></p>
+                  <p class="pull-right"><span class="label label-default" ng-bind="article.author"></span></p>
+                  <ul class="list-inline"><li><a href="#" ng-bind="article.post_date | date:'yyyy/MM/dd hh:mma'"></a></li>
+				  </ul>
+                  </div>
+                <div class="col-xs-3"></div>
+              </div>
+              <br><br>
+            </div>
+          </div>
+          <hr>
+
+          <!--/stories-->
+
+        </div>
+      </div>
+
+
+
+   	</div><!--/col-12-->
+  </div>
+</div>
+
+<footer>
+  <div class="container">
+    <div class="row">
+      <div class="col-sm-6">
+        <ul class="list-inline">
+          <li><a href="https://www.facebook.com/DoctorKoWJ" target="_blank"><i class="icon-facebook icon-2x"></i></a></li>
+          <li><a href="https://plus.google.com/+%E6%9F%AF%E6%96%87%E5%93%B2/posts" target="_blank"><i class="icon-google-plus icon-2x"></i></a></li>
+        </ul>
+
+      </div>
+      <div class="col-sm-6">
+          <p class="pull-right">
+			2014 Copyleft &copy;
+			<a href="https://www.facebook.com/will.fans" target="_blank">Will 保哥的技術交流中心</a></p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
+	<script src="lib/bootstrap/js/bootstrap.min.js"></script>
 	<script src="lib/angular/angular.min.js"></script>
 	<script src="lib/angular/angular-route.min.js"></script>
 	<script src="js/app.js"></script>
