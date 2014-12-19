@@ -9,7 +9,7 @@
 	<link rel="stylesheet" href="lib/bootstrap/css/bootstrap-theme.min.css">
 	<link rel="stylesheet" href="css/global.css">
 </head>
-<body ng-app="kpApp">
+<body>
 	<header class="navbar navbar-static-top bs-docs-nav" id="top" role="banner">
 	  <div class="container">
 	    <div class="navbar-header">
@@ -42,27 +42,106 @@
 	    </nav>
 	  </div>
 	</header>
-	<div class="container" ng-controller="AlbumCtrl as album">
-
-		<div class="col-md-4">
-			<h2> 相簿目錄</h2>
-			<ul class="categories">
-				<li class='album' ng-repeat="item in album.albums" ng-click="album.clickOnAlbum(item.id)">{{item.title}}</li>
-			</ul>
-		</div>
-		<div class="photo-container col-xs-12 col-sm-6 col-md-8 col-xs-6 ">
-			<h2>{{album.set.title}}</h2>
-			<ul class="photos row">
-				<li class="col-md-4 photo" ng-repeat="item in album.album.photos"><a target="_blank" ng-href="{{item.link}}"><img class="img-rounded img-responsive" ng-src="{{item.images.medium}}"/></a></li>
-			</ul>
-		</div>
+	<div id="content">
 	</div>
 
-	<script src="lib/angular/angular.min.js"></script>
-	<script src="lib/angular/angular-route.min.js"></script>
-	<script src="js/app.js"></script>
-	<script src="js/values.js"></script>
-	<script src="js/services.js"></script>
-	<script src="js/controllers.js"></script>
+	<script src="http://fb.me/react-0.12.1.js"></script>
+    <script src="http://fb.me/JSXTransformer-0.12.1.js"></script>
+    <script src="http://code.jquery.com/jquery-1.10.0.min.js"></script>
+	<script type="text/jsx">
+
+		
+		var Albumbox = React.createClass({
+
+			getInitialState: function(){
+				return {
+					albums: [],
+					selectedPhotos: []
+				};
+			},
+
+			componentDidMount: function(){
+				$.ajax({
+      				url: "http://api.kptaipei.tw/v1/albums/?accessToken=YOUR_API_KEY",
+      				dataType: 'json',
+      				success: function(data) {
+      					this.setState({albums: data.data});
+    					this.handleAlbumClicked(this.state.albums[0].id);
+      				}.bind(this),
+      				error: function(xhr, status, err) {
+        				console.log("Error fetching albums");
+        			}
+    			});
+			},
+
+			handleAlbumClicked: function(id){
+				var albumURL = "http://api.kptaipei.tw/v1/albums/"+id+"?accessToken=YOUR_API_KEY";
+				$.ajax({
+      				url: albumURL,
+      				dataType: 'json',
+      				success: function(data) {
+      					this.setState({selectedPhotos: data.data.photos});
+      				}.bind(this),
+      				error: function(xhr, status, err) {
+        				console.log("Error fetching albums");
+        			}
+    			});
+			},
+
+			render: function() {
+				return (
+					<div className="countainer">
+					  <Index albums={this.state.albums} onAlbumClicked={this.handleAlbumClicked}/>					  
+					  <Photo albums={this.state.selectedAlbum} selectedPhotos={this.state.selectedPhotos}/>
+					</div>
+				);
+			}
+		});
+
+
+		var Index = React.createClass({
+
+			handleClick: function(id){
+				this.props.onAlbumClicked(id);
+			},
+
+			render: function() {
+				var albumNodes = this.props.albums.map(function(album, i){
+					var boundClick = this.handleClick.bind(this, album.id);
+					return (
+						<li className="album" key={i} onClick={boundClick}>{album.title}</li>
+					);
+				}, this);
+				return (
+					<div className="col-md-4">
+						<h2> 相簿目錄</h2>
+						<ul className="categories">
+						  {albumNodes}
+						</ul>
+					</div>
+				);
+			}
+		});
+
+		var Photo = React.createClass({
+
+			render: function() {
+				var photoNodes = this.props.selectedPhotos.map(function(photo){
+					return (
+						<li className="col-md-4 photo"><a target="_blank" href={photo.link}><img className="img-rounded img-responsive" src={photo.images.medium}/></a></li>
+					);
+				});
+				return (
+					<div className="photo-container col-xs-12 col-sm-6 col-md-8 col-xs-6 ">
+						<ul className="photos row">
+							<li>{photoNodes}</li>
+						</ul>
+					 </div>					
+				);
+			}
+		});
+
+		React.render(<Albumbox />, document.getElementById("content"));
+	</script>
 </body>
 </html>
