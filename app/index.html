@@ -79,49 +79,9 @@
 
 <div class="container">
   <div class="row" id="content">
-
-	<div class="col-md-12">
-	  <div class="row">
-		<ul class="nav nav-pills">
-			<li class='category'
-				ng-repeat="(key, item) in main.categories"
-				ng-click="main.clickOnCategory(item.id)"
-				ng-class="(main.current_category_id === item.id) ? 'active' : ''">
-				<a href="" ng-bind="item.name"></a>
-			</li>
-		</ul>
-	  </div>
-	</div>
-
-    <div class="col-md-12">
-      <div class="panel">
-        <div class="panel-body">
-		  <div class="row" ng-repeat="(key, article) in main.categories[main.current_category_id].posts">
-            <br>
-            <div class="col-md-2 col-sm-3 text-center">
-              <a class="story-img" href="#"><img ng-src="{{article.thumbnail}}" style="width:100px;height:100px" class="img-circle"></a>
-            </div>
-            <div class="col-md-10 col-sm-9">
-              <h3 ng-bind="article.title"></h3>
-              <div class="row">
-                <div class="col-xs-9">
-                  <p ng-bind="(article.plain_content | limitTo:150) + '...'"></p>
-                  <p class="lead"><a ng-href="{{article.url}}" class="btn btn-default" target="_blank">Read More</a></p>
-                  <p class="pull-right"><span class="label label-default" ng-bind="article.author"></span></p>
-                  <ul class="list-inline"><li><a href="#" ng-bind="article.post_date | date:'yyyy/MM/dd hh:mma'"></a></li>
-				  </ul>
-                  </div>
-                <div class="col-xs-3"></div>
-              </div>
-              <br><br>
-            </div>
-          </div>
-          <hr>
-        </div>
-      </div>
-   	</div>
   </div>
 </div>
+
 
 <footer>
   <div class="container">
@@ -156,11 +116,12 @@
 				dataType:"json",
 				success: function(data){
 					this.setState({
-						newsList: data.data
+						newsList: data.data,
+						currentCategoryId: id
 					});
 				}.bind(this),
 				error: function(xhr, status, err) {
-        			console.log("Error fetching albums");
+        			console.log("Error fetching News from " + id);
         		}
 			});
 		},
@@ -168,7 +129,8 @@
 		getInitialState: function(){
 			return {
 				categories: [],
-				newsList: []
+				newsList: [],
+				currentCategoryId: -1
 			};			
 		},
 
@@ -183,7 +145,7 @@
 					this.fetchNewsFromId(this.state.categories[0].id);
 				}.bind(this),
 				error: function(xhr, status, err) {
-        			console.log("Error fetching albums");
+        			console.log("Error fetching News");
         		}
 			});
 		},
@@ -191,7 +153,8 @@
 		render: function() {
 			return (
 				<div>
-					<NewsHeader categories={this.state.categories} fetchNewsFromId={this.fetchNewsFromId}/>
+					<NewsHeader categories={this.state.categories} fetchNewsFromId={this.fetchNewsFromId} 
+					selectedId={this.state.currentCategoryId}/>
 					<NewsList list={this.state.newsList}/>
 				</div>				
 			);
@@ -203,7 +166,8 @@
 		render: function() {
 			var categoryNodes = this.props.categories.map(function(category, i){
 				return (
-					<Category name={category.name} id={category.id} fetchNewsFromId={this.props.fetchNewsFromId}/>
+					<Category name={category.name} id={category.id} fetchNewsFromId={this.props.fetchNewsFromId}
+					selectedId={this.props.selectedId}/>
 				);
 			}, this);
 			return (
@@ -218,7 +182,13 @@
 		}	
 	});
 	
-	var Category = React.createClass({	
+	var Category = React.createClass({
+
+		getDefaultProps: function(){
+			return {
+				className: "category"
+			};
+		},
 
 		handleSelectCategory: function(e){
 			this.props.fetchNewsFromId(this.props.id);
@@ -226,7 +196,7 @@
 
 		render: function() {
 			return (
-				<li className="category" onClick={this.handleSelectCategory}>
+				<li className={this.props.selectedId === this.props.id ? "category active" : "category"} onClick={this.handleSelectCategory}>
 					<a>{this.props.name}</a>
 				</li>
 			);
@@ -255,6 +225,25 @@
 	
 	var News = React.createClass({
 
+		parseDate: function(string){
+			var date = new Date(string);
+			var parsedHour = date.getHours() > 12 ? date.getHours() - 12 : date.getHours();
+			return date.getFullYear() + "/" + (date.getMonth() + 1) + "/" + date.getDate() + 
+				" " + (parsedHour < 10 ? "0" + parsedHour : parsedHour) + ":" + 
+				(date.getMinutes() < 10 ? "0" + date.getMinutes() : date.getMinutes()) + 
+				(date.getHours() > 12 ? "PM" : "AM");
+		},
+
+		trimContent: function(content){
+			var result = "";
+			if(content.length > 150){
+				result = content.substring(0, 150) + "...";
+			}else{
+				result = content;
+			}
+			return result;
+		},
+
 		getDefaultProps: function(){
 			return {
 				storyStyle: {
@@ -262,7 +251,8 @@
 					height: "100px"
 				}
 			};
-		},	
+		},
+
 		render: function() {
 			return (
 				<div className="row">
@@ -274,10 +264,10 @@
 			            <h3>{this.props.story.title}</h3>
 			            <div className="row">
 			                <div className="col-xs-9">
-			                  <p>{this.props.story.plain_content}</p>
+			                  <p>{this.trimContent(this.props.story.plain_content)}</p>
 			                  <p className="lead"><a href={this.props.story.url} className="btn btn-default" target="_blank">Read More</a></p>
 			                  <p className="pull-right"><span className="label label-default">{this.props.story.author}</span></p>
-			                  <ul className="list-inline"><li><a href="#">{this.props.story.post_date}</a></li>
+			                  <ul className="list-inline"><li><a href="#">{this.parseDate(this.props.story.post_date)}</a></li>
 							  </ul>
 			                </div>
 			                <div className="col-xs-3"></div>
