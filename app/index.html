@@ -1,69 +1,286 @@
 <!DOCTYPE html>
 <html>
 <head>
+	<meta http-equiv="content-type" content="text/html; charset=UTF-8">
 	<meta charset="UTF-8" />
 
 	<title>柯文哲文章集</title>
 
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<link href="http://netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.min.css" rel="stylesheet">
 	<link rel="stylesheet" href="lib/bootstrap/css/bootstrap.min.css">
 	<link rel="stylesheet" href="lib/bootstrap/css/bootstrap-theme.min.css">
-	<link rel="stylesheet" href="css/global.css">
+	<!--[if lt IE 9]>
+		<script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+	<![endif]-->
+	<link rel="stylesheet" href="css/styles.css">
 </head>
 <body ng-app="kpApp" ng-controller="MainCtrl as main">
-	<header class="navbar navbar-static-top bs-docs-nav" id="top" role="banner">
-		<div class="container">
-			<div class="navbar-header">
-				<button class="navbar-toggle" type="button" data-toggle="collapse" data-target=".bs-navbar-collapse">
-					<span class="sr-only">Toggle navigation</span>
-					<span class="icon-bar"></span>
-					<span class="icon-bar"></span>
-					<span class="icon-bar"></span>
-				</button>
-				<a href="index.html" class="navbar-brand">柯文哲 API 範例站</a>
-			</div>
-			<nav class="collapse navbar-collapse bs-navbar-collapse" role="navigation">
-				<ul class="nav navbar-nav">
-					<li class="active">
-						<a href="index.html">文章範例</a>
-					</li>
-					<li>
-						<a href="album.html">相簿範例</a>
-					</li>
-					<li>
-						<a href="video.html">影片範例</a>
-					</li>
-				</ul>
-				<ul class="nav navbar-nav navbar-right">
-					<li><a href="http://kptaipei.tw" target="_blank">柯文哲官網</a></li>
-					<li>
-						<a href="http://unlimited.kptaipei.tw" target="_blank">野生官網活動介紹</a>
-					</li>
-				</ul>
-			</nav>
-		</div>
-	</header>
-	<div class="container">
+<header class="navbar navbar-default navbar-fixed-top" role="banner">
+  <div class="container">
+    <div class="navbar-header">
+      <button class="navbar-toggle" type="button" data-toggle="collapse" data-target=".navbar-collapse">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a href="#/" class="navbar-brand">首頁</a>
+    </div>
+    <nav class="collapse navbar-collapse" role="navigation">
+      <ul class="nav navbar-nav">
+        <li>
+          <a href="#">文章範例</a>
+        </li>
+        <li>
+          <a href="#">相簿範例</a>
+        </li>
+        <li>
+          <a href="#">影片範例</a>
+        </li>
+        <li>
+          <a href="#">音樂範例</a>
+        </li>
+      </ul>
+      <ul class="nav navbar-right navbar-nav">
+	    <li><a href="http://kptaipei.tw" target="_blank">柯文哲官網</a></li>
+        <li><a href="http://unlimited.kptaipei.tw" target="_blank">野生官網活動介紹</a></li>
+        <li><a href="http://unlimited.kptaipei.tw/docs/" target="_blank">API 說明</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
 
-		<div class="col-md-4">
-			<h2> 文章類別目錄</h2>
-			<ul class="categories">
-				<li class='category' ng-repeat="(key, item) in main.categories" ng-click="main.clickOnCategory(item.id)">{{item.name}}
-					<ul class='articles'>
-						<li class='article' ng-repeat="(key, article) in item.posts" ng-click="main.clickOnArticle($event, article)">{{article.title}}</li>
-					</ul>
+<div id="masthead">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-7">
+        <h1>柯文哲野生官網
+          <p class="lead"></p>
+        </h1>
+      </div>
+	  <!--
+      <div class="col-md-5">
+        <div class="well well-lg">
+          <div class="row">
+            <div class="col-sm-12">
+
+            </div>
+          </div>
+        </div>
+      </div>
+	  -->
+    </div>
+  </div><!-- /cont -->
+</div>
+
+
+
+
+<div class="container">
+  <div class="row" id="content">
+  </div>
+</div>
+
+
+<footer>
+  <div class="container">
+    <div class="row">
+      <div class="col-sm-6">
+        <ul class="list-inline">
+          <li><a href="https://www.facebook.com/DoctorKoWJ" target="_blank"><i class="icon-facebook icon-2x"></i></a></li>
+          <li><a href="https://plus.google.com/+%E6%9F%AF%E6%96%87%E5%93%B2/posts" target="_blank"><i class="icon-google-plus icon-2x"></i></a></li>
+        </ul>
+
+      </div>
+      <div class="col-sm-6">
+          <p class="pull-right">
+			2014 Copyleft &copy;
+			<a href="https://www.facebook.com/will.fans" target="_blank">Will 保哥的技術交流中心</a></p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
+	<script src="lib/bootstrap/js/bootstrap.min.js"></script>
+	<script src="http://fb.me/react-0.12.1.js"></script>
+    <script src="http://fb.me/JSXTransformer-0.12.1.js"></script>
+	<script type="text/jsx">
+	
+	var NewsBox = React.createClass({
+
+		fetchNewsFromId: function(id){
+			$.ajax({
+				url: "http://api.kptaipei.tw/v1/category/" + id + "?accessToken=YOUR_API_KEY",
+				dataType:"json",
+				success: function(data){
+					this.setState({
+						newsList: data.data,
+						currentCategoryId: id
+					});
+				}.bind(this),
+				error: function(xhr, status, err) {
+        			console.log("Error fetching News from " + id);
+        		}
+			});
+		},
+
+		getInitialState: function(){
+			return {
+				categories: [],
+				newsList: [],
+				currentCategoryId: -1
+			};			
+		},
+
+		componentDidMount: function(){
+			$.ajax({
+				url: "http://api.kptaipei.tw/v1/category/?accessToken=YOUR_API_KEY",
+				dataType: "json",
+				success: function(data){
+					this.setState({
+						categories: data.data
+					});
+					this.fetchNewsFromId(this.state.categories[0].id);
+				}.bind(this),
+				error: function(xhr, status, err) {
+        			console.log("Error fetching News");
+        		}
+			});
+		},
+
+		render: function() {
+			return (
+				<div>
+					<NewsHeader categories={this.state.categories} fetchNewsFromId={this.fetchNewsFromId} 
+					selectedId={this.state.currentCategoryId}/>
+					<NewsList list={this.state.newsList}/>
+				</div>				
+			);
+		}	
+	});
+	
+	var NewsHeader = React.createClass({
+
+		render: function() {
+			var categoryNodes = this.props.categories.map(function(category, i){
+				return (
+					<Category name={category.name} id={category.id} fetchNewsFromId={this.props.fetchNewsFromId}
+					selectedId={this.props.selectedId}/>
+				);
+			}, this);
+			return (
+				<div className="col-md-12">
+	  				<div className="row">
+						<ul className="nav nav-pills">
+							{categoryNodes}
+						</ul>
+	  				</div>
+				</div>
+			);
+		}	
+	});
+	
+	var Category = React.createClass({
+
+		getDefaultProps: function(){
+			return {
+				className: "category"
+			};
+		},
+
+		handleSelectCategory: function(e){
+			this.props.fetchNewsFromId(this.props.id);
+		},	
+
+		render: function() {
+			return (
+				<li className={this.props.selectedId === this.props.id ? "category active" : "category"} onClick={this.handleSelectCategory}>
+					<a>{this.props.name}</a>
 				</li>
-			</ul>
-		</div>
-		<div class="page col-xs-12 col-sm-6 col-md-8 col-xs-6" ng-bind-html="main.content">
+			);
+		}	
+	});
+	
+	var NewsList = React.createClass({	
+		render: function() {
+			var newsNodes = this.props.list.map(function(story){
+				return (
+					<News story={story}/>
+				);
+			});
+			return (
+				<div className="col-md-12">
+			      <div className="panel">
+			        <div className="panel-body">
+					  {newsNodes}
+			          <hr />					  
+			        </div>
+			      </div>
+			   	</div>		
+			);
+		}	
+	});
+	
+	var News = React.createClass({
 
-		</div>
-	</div>
+		parseDate: function(string){
+			var date = new Date(string);
+			var parsedHour = date.getHours() > 12 ? date.getHours() - 12 : date.getHours();
+			return date.getFullYear() + "/" + (date.getMonth() + 1) + "/" + date.getDate() + 
+				" " + (parsedHour < 10 ? "0" + parsedHour : parsedHour) + ":" + 
+				(date.getMinutes() < 10 ? "0" + date.getMinutes() : date.getMinutes()) + 
+				(date.getHours() > 12 ? "PM" : "AM");
+		},
 
-	<script src="lib/angular/angular.min.js"></script>
-	<script src="lib/angular/angular-route.min.js"></script>
-	<script src="js/app.js"></script>
-	<script src="js/values.js"></script>
-	<script src="js/services.js"></script>
-	<script src="js/controllers.js"></script>
+		trimContent: function(content){
+			var result = "";
+			if(content.length > 150){
+				result = content.substring(0, 150) + "...";
+			}else{
+				result = content;
+			}
+			return result;
+		},
+
+		getDefaultProps: function(){
+			return {
+				storyStyle: {
+					width: "100px",
+					height: "100px"
+				}
+			};
+		},
+
+		render: function() {
+			return (
+				<div className="row">
+			        <br/>
+			        <div className="col-md-2 col-sm-3 text-center">
+			            <a className="story-img" href="#"><img src={this.props.story.thumbnail} style={this.props.storyStyle} className="img-circle"/></a>
+			        </div>
+			        <div className="col-md-10 col-sm-9">
+			            <h3>{this.props.story.title}</h3>
+			            <div className="row">
+			                <div className="col-xs-9">
+			                  <p>{this.trimContent(this.props.story.plain_content)}</p>
+			                  <p className="lead"><a href={this.props.story.url} className="btn btn-default" target="_blank">Read More</a></p>
+			                  <p className="pull-right"><span className="label label-default">{this.props.story.author}</span></p>
+			                  <ul className="list-inline"><li><a href="#">{this.parseDate(this.props.story.post_date)}</a></li>
+							  </ul>
+			                </div>
+			                <div className="col-xs-3"></div>
+			            </div>
+			            <br/><br/>
+			        </div>
+			    </div>
+			);
+		}	
+	});
+
+	React.render(<NewsBox />, document.getElementById("content"));
+	
+	</script>
 </body>
 </html>

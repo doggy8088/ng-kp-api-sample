@@ -26,6 +26,7 @@
                 kptService.getCategory(category_id).success(function(results) {
                     console.log(results);
                     var initial_article;
+                    vm.current_category_id = category_id;
                     vm.categories[category_id].posts = [];
                     angular.forEach(results.data,function(item){
                         initial_article = initial_article || item;
